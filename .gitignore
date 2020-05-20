@@ -1,0 +1,5 @@
+venv/
+tmp/
+.env
+.idea
+meme-instabot-ec7ff86df68c.json

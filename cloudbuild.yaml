@@ -1,0 +1,10 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gsutil'
+      args: ['cp', 'gs://${_BUCKET_NAME}/.env', '.env']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+    - functions
+    - deploy
+    - get_post_and_upload
+    - --source=.
+    - --trigger-http

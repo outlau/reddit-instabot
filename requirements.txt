@@ -1,0 +1,5 @@
+google-cloud-firestore==1.6.2
+google-cloud==0.34.0
+instabot-for-memebot==0.0.3
+praw==6.5.1
+python-dotenv==0.10.5
