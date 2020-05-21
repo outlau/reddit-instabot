@@ -4,7 +4,6 @@ from instabot import Bot
 from urllib import request
 
 import praw
-import random
 import os
 
 load_dotenv()
@@ -24,8 +23,19 @@ db = firestore.Client()
 
 
 def get_post_and_upload(req):
-    caption_docs = db.collection(u'captions').stream()
+    caption_docs = db.collection(u'captions')
+    caption_doc = next(caption_docs.order_by(
+        u'dateAccessed', direction=firestore.Query.ASCENDING).limit(1).stream())
+
+    caption_docs.document(caption_doc.id).update({
+        u'dateAccessed': firestore.SERVER_TIMESTAMP
+    })
+
     hashtag_docs = db.collection(u'hashtags').stream()
+
+    caption = caption_doc.to_dict()["text"]
+    for doc in hashtag_docs:
+        caption += " {}".format(doc.to_dict()["text"])
 
     json_filename = "{}_uuid_and_cookie.json".format(os.getenv("INSTAGRAM_USERNAME"))
     json_filename_path = os.path.join("/tmp", json_filename)
@@ -34,14 +44,6 @@ def get_post_and_upload(req):
     json_value = uuid_and_cookie_json.get().to_dict()["value"]
     json_file_write.write(json_value)
     json_file_write.close()
-
-    captions = []
-    for doc in caption_docs:
-        captions.append(doc.to_dict()["text"])
-
-    caption = random.choice(captions)
-    for doc in hashtag_docs:
-        caption += " {}".format(doc.to_dict()["text"])
 
     instagram_bot = Bot(base_path="/tmp")
     instagram_bot.login(username=os.getenv("INSTAGRAM_USERNAME"), password=os.getenv("INSTAGRAM_PASSWORD"))
@@ -60,14 +62,12 @@ def get_post_and_upload(req):
                 f = open('/tmp/img.jpg', 'wb')
                 f.write(request.urlopen(submission.url).read())
                 f.close()
-                print("63")
                 set_ref = db.collection(u'posts').document(submission.id)
                 set_ref.set({
                     u'title': submission.title,
                     u'url': submission.url
                 })
 
-                print("70")
                 result = instagram_bot.upload_photo('/tmp/img.jpg', caption)
                 print(result)
                 if not result:

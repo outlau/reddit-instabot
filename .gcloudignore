@@ -19,3 +19,7 @@ tmp/
 venv/
 .idea
 meme-instabot-ec7ff86df68c.json
+
+ gcloud iam service-accounts add-iam-policy-binding meme-instabot@appspot.gserviceaccount.com --member='serviceAccount:meme-instabot@cloudbuild.gserviceaccount.com' --role=roles/iam.serviceAccountUser
+
+ gcloud projects add-iam-policy-binding meme-instabot --member='serviceAccount:409717375344@cloudbuild.gserviceaccount.com' --role='roles/iam.serviceAccountUser'
